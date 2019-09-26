@@ -20,30 +20,30 @@ import javax.crypto.NoSuchPaddingException;
 
 import util.AESDec;
 
-//占쏙옙占� 클占쏙옙占쏙옙
+//게시판 댓글
 public class CommDAO {
 	private Connection conn;
 	private ResultSet rs;
 	private AESDec aes;	
-	//占쏙옙占� 占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+	
 	public CommDAO() {
 		try {
-			//占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙호 占쏙옙占쏙옙
+			//내부 암호화된 DB password read
 			String propFile = "C:\\Users\\security915\\eclipse-workspace\\protectme\\src\\util\\key.properties";		
-	       
-	        Properties props = new Properties();
-	        FileInputStream fis = new FileInputStream(propFile);	         
-	        props.load(new java.io.BufferedInputStream(fis));			
+	      		Properties props = new Properties();
+	      		FileInputStream fis = new FileInputStream(propFile);	         
+	       		props.load(new java.io.BufferedInputStream(fis));			
 
-	        String read_key = "C:\\Users\\key_management\\keymanagement.properties";
-	        Properties key = new Properties();	        
-	        FileInputStream key_fis = new FileInputStream(read_key);
-	        key.load(new java.io.BufferedInputStream(key_fis));
+			//외부에 저장된 비밀키 read
+	       		String read_key = "C:\\Users\\key_management\\keymanagement.properties";
+	        	Properties key = new Properties();	        
+	       		FileInputStream key_fis = new FileInputStream(read_key);
+	       		key.load(new java.io.BufferedInputStream(key_fis));
 	        
-	        String aes_key = key.getProperty("key");
-	        if(aes_key !=null) {
-	        	aes = new AESDec(aes_key);
-	        }	  
+	       		 String aes_key = key.getProperty("key");
+	       		 if(aes_key !=null) {
+	        		aes = new AESDec(aes_key);
+	    		}	  
 	        
 			String dbURL = "jdbc:mysql://localhost:3306/BBS?serverTimezone=UTC";
 			String dbID = "root";
@@ -57,11 +57,11 @@ public class CommDAO {
 				conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
 			}
 			
-			if(fis != null)
-				fis.close();
+			if(fis != null) 
+				fis.close(); //부적절한 자원 해제 
 			if(key_fis != null)
 				key_fis.close();
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {//예외처리 ,대응부재 제거
 			System.err.println("CommDAO FileNotFoundException error");
 		} catch (IOException e) {
 			System.err.println("CommDAO IOException error");
@@ -84,7 +84,7 @@ public class CommDAO {
 		}
 	}
 	
-	//占쏙옙占� 占쌜쇽옙 占쏙옙짜 획占쏙옙
+	//날짜 값
 	public String getDate() {
 		String SQL = "SELECT NOW()";
 		PreparedStatement pstmt = null;
@@ -105,10 +105,10 @@ public class CommDAO {
 				}
 			}
 		}
-		return ""; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+		return ""; 
 	}
 	
-	//占쏙옙占쏙옙占� 1占쏙옙占쏙옙占쏙옙占쏙옙占쏙옙 占실븝옙
+	
 	public int getNext() {
 		String SQL = "SELECT commID FROM COMM ORDER BY commID DESC";
 		PreparedStatement pstmt = null;
@@ -118,7 +118,7 @@ public class CommDAO {
 			if(rs.next()) {
 				return rs.getInt(1)+1;
 			}
-			return 1; //첫占쏙옙째 占쌉시뱄옙占쏙옙 占쏙옙占�
+			return 1; 
 		} catch (SQLException e) {
 			System.err.println("GetNext SQLException error");	
 		} finally {
@@ -130,12 +130,12 @@ public class CommDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+		return -1; 
 	}
 	
-	//占쏙옙占� 占쌜쇽옙
+	//댓글 쓰기
 	public int write(String commTitle, String userID, String commContent, int bbsID) {
-		String SQL = "INSERT INTO COMM VALUES(?,?,?,?,?,?)";
+		String SQL = "INSERT INTO COMM VALUES(?,?,?,?,?,?)"; //SQL 인젝션 제거
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -157,10 +157,9 @@ public class CommDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+		return -1;
 	}
 	
-	//占쏙옙占� 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙占� 10占쏙옙占쏙옙 占쏙옙占쏙옙占싹울옙 占쏙옙占쏙옙트 占쏙옙占쏙옙
 	public ArrayList<Comm> getList(int pageNumber) {
 		String SQL = "SELECT * FROM COMM WHERE commID < ? ORDER BY commID DESC LIMIT 10";
 		ArrayList<Comm> list = new ArrayList<Comm>();
@@ -193,7 +192,6 @@ public class CommDAO {
 		return list;	
 	}
 	
-	//占쏙옙占� 占쏙옙占쏙옙占쏙옙 占싱듸옙
 	public boolean nextPage(int pageNumber) {
 		String SQL = "SELECT * FROM COMM WHERE commID < ?";
 		PreparedStatement pstmt = null;
@@ -218,7 +216,6 @@ public class CommDAO {
 		return false;
 	}
 	
-	//占쌔댐옙 占쏙옙占� 占쏙옙占쏙옙 획占쏙옙
 	public Comm getComm(int commID) {
 		String SQL = "SELECT * FROM COMM WHERE commID = ?";
 		PreparedStatement pstmt = null;
@@ -250,7 +247,7 @@ public class CommDAO {
 		return null;		
 	}
 	
-	//占쏙옙占� 占쏙옙占쏙옙
+
 	public int update(int commID, String commTitle, String commContent) {
 		String SQL = "UPDATE COMM SET commTitle = ?, commContent = ? WHERE commID = ?";
 		PreparedStatement pstmt = null;
@@ -271,10 +268,10 @@ public class CommDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙		
+		return -1; 	
 	}
 	
-	//占쏙옙占� 占쏙옙占쏙옙
+
 	public int delete(int commID) {
 		String SQL = "DELETE FROM COMM WHERE commID = ?";
 		PreparedStatement pstmt = null;
@@ -293,10 +290,10 @@ public class CommDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙			
+		return -1;		
 	}
 	
-	//회占쏙옙탈占쏙옙占� 占쌔댐옙 占쏙옙占� 占쏙옙占쏙옙
+
 	public int remove_comment(String userID) {
 		String SQL = "DELETE FROM COMM WHERE userID = ?";
 		PreparedStatement pstmt = null;
@@ -315,6 +312,6 @@ public class CommDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙			
+		return -1; 			
 	}	
 }
