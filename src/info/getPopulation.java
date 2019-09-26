@@ -12,10 +12,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-//�������������� 공공API ���������α��� XML ���� Ŭ����
+//지역별 성범죄자 인구수 파싱 코드
 public class getPopulation{
 	
-	//�� ������ ������ ���� ���� ���� -> �����ʾƼ� �迭�Ⱦ�
+	
 	public String cityname1 = "";
 	public String citycnt1 = "";
 	public String cityname2 = "";
@@ -53,14 +53,13 @@ public class getPopulation{
 	public String cityname18 = "";
 	public String citycnt18 = "";
 	
-	//XML �±׿��� �ʿ��� ���� ����
+	//XML 파싱
 	public void getTagValue() {
 		int cnt = 0;
 		try{
 			while(cnt<18) {
-				String url = "http://116.67.77.182/openapi/SOCitysStats/"; //�������������� API ���������α��� XML ���� URL
+				String url = "http://116.67.77.182/openapi/SOCitysStats/"; //공공기관 API XML URL
 
-				//������ʹ� ������ �����µ��� ������
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 				Document doc = dBuilder.parse(url);
@@ -75,13 +74,11 @@ public class getPopulation{
 					if(nNode.getNodeType() == Node.ELEMENT_NODE){
 						Element eElement = (Element) nNode;
 						
-						//�����̸�, �α��� -> Value ��� ����
 						NodeList nlList1 = eElement.getElementsByTagName("city-name").item(0).getChildNodes();
 						Node nValue1 = (Node) nlList1.item(0);
 						NodeList nlList2 = eElement.getElementsByTagName("city-count").item(0).getChildNodes();
 						Node nValue2 = (Node) nlList2.item(0);
 						
-						//�� ��忡 �ش� �� ����
 						if(cnt==0) {
 							cityname1 = nValue1.getNodeValue();
 							citycnt1 = nValue2.getNodeValue();
