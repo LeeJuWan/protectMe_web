@@ -33,7 +33,7 @@ public class AESDec {
  
         this.keySpec = keySpec;
     }
-	 // �븫�샇�솕
+    //AES 암호화  및 예외처리 throws 처리
     public String aesEncode(String str) throws java.io.UnsupportedEncodingException, NoSuchAlgorithmException,
                                                      NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
                                                      IllegalBlockSizeException, BadPaddingException{
@@ -45,7 +45,7 @@ public class AESDec {
  
         return enStr;
     }
-    //蹂듯샇�솕
+    //ASE 복호화 및 예외처리 throws 처리
     public String aesDecode(String str) throws java.io.UnsupportedEncodingException, NoSuchAlgorithmException,
                                                      NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
                                                      IllegalBlockSizeException, BadPaddingException {
