@@ -31,21 +31,22 @@ public class UserDAO {
 	//회원 데이터베이스 연동
 	public UserDAO() {	
 		try {
-			//외부 암호키 리드
+			//내부 암호화된 DB password read
 			String propFile = "C:\\Users\\security915\\eclipse-workspace\\protectme\\src\\util\\key.properties";		
 			Properties props = new Properties();
 			FileInputStream fis = new FileInputStream(propFile);
 			props.load(new java.io.BufferedInputStream(fis));
 			
+			//외부에 저장된 비밀키 read
 			String read_key = "C:\\Users\\key_management\\keymanagement.properties";
-	        Properties key = new Properties();	
-	        FileInputStream key_fis = new FileInputStream(read_key);
-	        key.load(new java.io.BufferedInputStream(key_fis));
+	      		Properties key = new Properties();	
+	       		FileInputStream key_fis = new FileInputStream(read_key);
+	        	key.load(new java.io.BufferedInputStream(key_fis));
 	  
-	        String aes_key = key.getProperty("key");
-	        if(aes_key !=null) {
-	        	aes = new AESDec(aes_key);
-	        }	  
+	      		 String aes_key = key.getProperty("key");
+	       		 if(aes_key !=null) {
+	        		aes = new AESDec(aes_key);
+	 	      	 }	  
 	      
 			String dbURL = "jdbc:mysql://localhost:3306/bbs?serverTimezone=UTC";
 			String dbID = "root";
@@ -58,11 +59,11 @@ public class UserDAO {
 				conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
 			}
 			
-			if(fis != null)
+			if(fis != null) //부적절한 자원해제 
 				fis.close();
 			if(key_fis != null)
 				key_fis.close();
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) { //예외처리 ,대응부재 제거
 			System.err.println("UserDAO FileNotFoundException error");	
 		} catch (IOException e) {
 			System.err.println("UserDAO IOException error");	
@@ -88,7 +89,7 @@ public class UserDAO {
 	//로그인
 	public int login(String userID, String userPassword) {		
 		if(userID != null && userPassword != null) {
-			String SQL = "SELECT userPassword FROM USER WHERE userID = ?";
+			String SQL = "SELECT userPassword FROM USER WHERE userID = ?"; //
 			PreparedStatement pstmt = null;
 			try {
 				pstmt = conn.prepareStatement(SQL);
@@ -120,6 +121,7 @@ public class UserDAO {
 		return -2; // 데이터베이스 오류
 	}
 	
+	//5회 로그인 실패 LOCK하기 위한 Counting
 	public int count(String userID) {
 		String SQL = "UPDATE USER SET userCnt = userCnt+1 WHERE userID = ?";
 		PreparedStatement pstmt = null;
@@ -190,8 +192,10 @@ public class UserDAO {
 	
 	//회원가입
 	public int join(User user) {
-		String SQL = "INSERT INTO USER VALUES (?,?,?,?,?,?,?)";
-		String hashPassword =BCrypt.hashpw(user.getUserPassword(),BCrypt.gensalt());
+		String SQL = "INSERT INTO USER VALUES (?,?,?,?,?,?,?)"; //SQL 인젝션 제거
+		
+		//사용자 비밀번호 -> 일방향 해시함수 암호화 진행 후 DB저장, Salt 별도 저장 필요 X
+		String hashPassword =BCrypt.hashpw(user.getUserPassword(),BCrypt.gensalt()); 
 		user.setUserPassword(hashPassword);
 		PreparedStatement pstmt = null;
 		try {
@@ -264,6 +268,7 @@ public class UserDAO {
 		}
 		return -1; //데이터베이스 오류
 	}
+	
 	public ArrayList<User> getList(int pageNumber) {
 		String SQL = "SELECT * FROM USER WHERE userNum < ? ORDER BY userNum DESC LIMIT 10";
 		ArrayList<User> list = new ArrayList<User>();
