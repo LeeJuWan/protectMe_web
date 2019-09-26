@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+encoding//src/bbs/BbsDAO.java=UTF-8
+encoding//src/comm/CommDAO.java=UTF-8
+encoding//src/user/UserDAO.java=UTF-8
+encoding//src/util/AESDec.java=UTF-8
