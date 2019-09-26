@@ -20,29 +20,30 @@ import javax.crypto.NoSuchPaddingException;
 
 import util.AESDec;
 
-//占쌉쏙옙占쏙옙 클占쏙옙占쏙옙
+//게시판
 public class BbsDAO {
 	private Connection conn;
 	private ResultSet rs;
 	private AESDec aes;
-	//占쌉쏙옙占쏙옙 占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+	
 	public BbsDAO() {
 		try {
-			//�뀋�뀋
+			//내부 암호화된 DB password read
 			String propFile = "C:\\Users\\security915\\eclipse-workspace\\protectme\\src\\util\\key.properties";		
-	        Properties props = new Properties();
-	        FileInputStream fis = new FileInputStream(propFile);	         
-	        props.load(new java.io.BufferedInputStream(fis));			
-
-	        String read_key = "C:\\Users\\key_management\\keymanagement.properties";
-	        Properties key = new Properties();	        
-	        FileInputStream key_fis = new FileInputStream(read_key);
-	        key.load(new java.io.BufferedInputStream(key_fis));
+	       		Properties props = new Properties();
+	        	FileInputStream fis = new FileInputStream(propFile);	         
+	        	props.load(new java.io.BufferedInputStream(fis));			
+			
+			//외부에 저장된 비밀키 read
+	       		String read_key = "C:\\Users\\key_management\\keymanagement.properties";
+	       		Properties key = new Properties();	        
+			FileInputStream key_fis = new FileInputStream(read_key);
+	       		key.load(new java.io.BufferedInputStream(key_fis));
 	        
-	        String aes_key = key.getProperty("key");
-	        if(aes_key !=null) {
-	        	aes = new AESDec(aes_key);
-	        }	        
+	       		 String aes_key = key.getProperty("key");
+	       		 if(aes_key !=null) {
+	        		aes = new AESDec(aes_key);
+	       		 }	        
 	        
 			String dbURL = "jdbc:mysql://localhost:3306/BBS?serverTimezone=UTC";
 			String dbID = "root";
@@ -61,7 +62,7 @@ public class BbsDAO {
 			if(key_fis != null) {
 				key_fis.close();
 			}
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) { //예외처리 ,대응부재 제거
 			System.err.println("BbsDAO FileNotFoundException error");	
 		} catch (IOException e) {
 			System.err.println("BbsDAO IOException error");
@@ -84,7 +85,7 @@ public class BbsDAO {
 		}
 	}
 	
-	//占쌉시뱄옙 占쌜쇽옙 占쏙옙짜 획占쏙옙
+	//날짜 값 
 	public String getDate() {
 		String SQL = "SELECT NOW()";
 		PreparedStatement pstmt = null;
@@ -105,10 +106,10 @@ public class BbsDAO {
 				}
 			}
 		}
-		return ""; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+		return "";
 	}
 	
-	//占쌉쏙옙占쏙옙占쏙옙 1占쏙옙占쏙옙占쏙옙占쏙옙占쏙옙 占실븝옙
+	
 	public int getNext() {
 		String SQL = "SELECT bbsID FROM BBS ORDER BY bbsID DESC";
 		PreparedStatement pstmt = null;
@@ -118,7 +119,7 @@ public class BbsDAO {
 			if(rs.next()) {
 				return rs.getInt(1)+1;
 			}
-			return 1; //첫占쏙옙째 占쌉시뱄옙占쏙옙 占쏙옙占�
+			return 1; 
 		} catch (SQLException e) {
 			System.err.println("GetNext SQLException error");	
 		} finally {
@@ -130,11 +131,12 @@ public class BbsDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙
+		return -1;
 	}
 	
+	//게시글 
 	public int write(String bbsTitle, String userID, String bbsContent) {
-		String SQL = "INSERT INTO BBS VALUES(?,?,?,?,?,?)";
+		String SQL = "INSERT INTO BBS VALUES(?,?,?,?,?,?)"; //SQL 인젝션 제거
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -161,7 +163,6 @@ public class BbsDAO {
 		return -1;
 	}
 	
-	//占쌉쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쌉시뱄옙 10占쏙옙占쏙옙 占쏙옙占쏙옙占싹울옙 占쏙옙占쏙옙트 占쏙옙占쏙옙
 	public ArrayList<Bbs> getList(int pageNumber) {
 		String SQL = "SELECT * FROM BBS WHERE bbsID < ? AND bbsAvailable = 1 ORDER BY bbsID DESC LIMIT 10";
 		ArrayList<Bbs> list = new ArrayList<Bbs>();
@@ -194,7 +195,6 @@ public class BbsDAO {
 		return list;	
 	}
 	
-	//占쌉쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占싱듸옙
 	public boolean nextPage(int pageNumber) {
 		String SQL = "SELECT * FROM BBS WHERE bbsID < ? AND bbsAvailable = 1";
 		PreparedStatement pstmt = null;
@@ -219,7 +219,6 @@ public class BbsDAO {
 		return false;
 	}
 	
-	//占쌔댐옙 占쌉시뱄옙 占쏙옙占쏙옙 획占쏙옙
 	public Bbs getBbs(int bbsID) {
 		String SQL = "SELECT * FROM BBS WHERE bbsID = ?";
 		PreparedStatement pstmt = null;
@@ -251,7 +250,6 @@ public class BbsDAO {
 		return null;		
 	}
 	
-	//占쌉시뱄옙 占쏙옙占쏙옙
 	public int update(int bbsID, String bbsTitle, String bbsContent) {
 		String SQL = "UPDATE BBS SET bbsTitle = ?, bbsContent = ? WHERE bbsID = ?";
 		PreparedStatement pstmt = null;
@@ -272,10 +270,10 @@ public class BbsDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙		
+		return -1;	
 	}
 	
-	//占쌉시뱄옙 占쏙옙占쏙옙
+
 	public int delete(int bbsID) {
 		String SQL = "DELETE FROM BBS WHERE bbsID = ?";
 		PreparedStatement pstmt = null;
@@ -295,10 +293,10 @@ public class BbsDAO {
 				}
 			}
 		}
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙			
+		return -1;			
 	}
 	
-	//회占쏙옙탈占쏙옙占� 占쌔댐옙 占쌉시뱄옙 占쏙옙占쏙옙
+
 	public int remove_bbs(String userID) {
 		String SQL = "DELETE FROM BBS WHERE userID = ?";
 		PreparedStatement pstmt = null;
@@ -318,6 +316,6 @@ public class BbsDAO {
 				}
 			}
 		}		
-		return -1; //占쏙옙占쏙옙占싶븝옙占싱쏙옙 占쏙옙占쏙옙			
+		return -1; 		
 	}	
 }
